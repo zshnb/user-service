@@ -1,5 +1,6 @@
-package com.zshnb.userservice;
+package com.zshnb.userservice.user_service;
 
+import com.zshnb.userservice.BaseTest;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class UpdateUserTest {
+public class GetUserTest extends BaseTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
@@ -34,13 +34,17 @@ public class UpdateUserTest {
         ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
             new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
         User response = responseEntity.getBody().getData();
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getName()).isEqualTo("first user");
 
-        User updateRequest = new User();
-        updateRequest.setName("new name");
-        responseEntity = testRestTemplate.exchange(String.format("/api/user/%d", response.getId()), HttpMethod.PUT,
-            new HttpEntity<>(updateRequest), new ParameterizedTypeReference<Response<User>>() {});
-        assertThat(responseEntity.getBody().getData().getName()).isEqualTo("new name");
+        responseEntity = testRestTemplate.exchange(String.format("/api/user/%d",
+            response.getId()), HttpMethod.GET, null, new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
+    }
+
+    @Test
+    public void failedWhenNotExist() {
+        ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user/1", HttpMethod.GET,
+            null, new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

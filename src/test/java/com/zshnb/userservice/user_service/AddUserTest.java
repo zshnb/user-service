@@ -1,30 +1,26 @@
-package com.zshnb.userservice;
+package com.zshnb.userservice.user_service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+import com.zshnb.userservice.BaseTest;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class GetUserTest {
+public class AddUserTest extends BaseTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
     @Test
-    @Transactional
     public void successful() {
         User user = new User();
         user.setName("first user");
@@ -33,11 +29,24 @@ public class GetUserTest {
         user.setDescription("description");
         ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
             new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
-        User response = responseEntity.getBody().getData();
-
-        responseEntity = testRestTemplate.exchange(String.format("/api/user/%d",
-            response.getId()), HttpMethod.GET, null, new ParameterizedTypeReference<Response<User>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
+    }
+
+    @Test
+    public void failedWhenDuplicated() {
+        User user = new User();
+        user.setName("first user");
+        user.setDob(LocalDateTime.now());
+        user.setAddress("address");
+        user.setDescription("description");
+        ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
+
+        responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

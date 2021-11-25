@@ -1,7 +1,8 @@
-package com.zshnb.userservice;
+package com.zshnb.userservice.user_service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.zshnb.userservice.BaseTest;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.serviceImpl.UserServiceImpl;
@@ -18,8 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class DeleteUserTest {
+public class DeleteUserTest extends BaseTest {
     @Autowired
     private TestRestTemplate testRestTemplate;
 
@@ -44,5 +44,12 @@ public class DeleteUserTest {
             null, new ParameterizedTypeReference<Response<User>>() {});
         User user = userService.getById(response.getId());
         assertThat(user).isNull();
+    }
+
+    @Test
+    public void failedWhenNotExist() {
+        ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user/1", HttpMethod.DELETE,
+            null, new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }
