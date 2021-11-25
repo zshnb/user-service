@@ -35,4 +35,11 @@ public class UserController {
         userService.delete(id);
         return Response.ok();
     }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public Response<User> get(@PathVariable int id) {
+        User user = userService.detail(id);
+        return Response.ok(user);
+    }
 }
