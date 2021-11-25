@@ -5,7 +5,9 @@ import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.request.FollowUserRequest;
 import com.zshnb.userservice.request.ListFollowUserRequest;
+import com.zshnb.userservice.request.UnfollowUserRequest;
 import com.zshnb.userservice.serviceImpl.FollowServiceImpl;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,5 +39,10 @@ public class FollowController {
     @PostMapping
     public Response<String> followUser(@RequestBody FollowUserRequest request) {
         return followService.followUser(request);
+    }
+
+    @DeleteMapping
+    public Response<String> unfollowUser(@RequestBody UnfollowUserRequest request) {
+        return followService.unfollowUser(request);
     }
 }

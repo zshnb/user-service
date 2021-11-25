@@ -1,5 +1,6 @@
 package com.zshnb.userservice.serviceImpl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -11,6 +12,7 @@ import com.zshnb.userservice.mapper.FollowMapper;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.FollowUserRequest;
 import com.zshnb.userservice.request.ListFollowUserRequest;
+import com.zshnb.userservice.request.UnfollowUserRequest;
 import com.zshnb.userservice.service.IFollowService;
 import com.zshnb.userservice.util.AssertionUtil;
 import org.springframework.beans.BeanUtils;
@@ -45,6 +47,18 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
         Follow follow = new Follow();
         BeanUtils.copyProperties(request, follow);
         save(follow);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<String> unfollowUser(UnfollowUserRequest request) {
+        User user = userMapper.selectById(request.getUserId());
+        AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", request.getUserId()));
+        User followUser = userMapper.selectById(request.getFollowUserId());
+        AssertionUtil.assertCondition(followUser != null, String.format("follow user with %d doesn't exist", request.getFollowUserId()));
+        followMapper.delete(new QueryWrapper<Follow>()
+            .eq("user_id", request.getUserId())
+            .eq("follow_user_id", request.getFollowUserId()));
         return Response.ok();
     }
 }
