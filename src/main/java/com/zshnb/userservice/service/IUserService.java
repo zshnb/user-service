@@ -5,7 +5,7 @@ import com.zshnb.userservice.entity.User;
 
 public interface IUserService extends IService<User> {
     User add(User user);
-    User update(User user);
+    User update(int id, User updateRequest);
     User detail(int id);
     void delete(int id);
 }

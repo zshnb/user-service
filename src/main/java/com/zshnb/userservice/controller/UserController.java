@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
     private final UserServiceImpl userService;
 
@@ -15,17 +15,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/add")
+    @PostMapping
     @ResponseBody
     public Response<User> add(@RequestBody User request) {
         User user = userService.add(request);
         return Response.ok(user);
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     @ResponseBody
     public Response<User> update(@PathVariable int id, @RequestBody User old) {
-        User user = userService.update(old);
+        User user = userService.update(id, old);
         return Response.ok(user);
     }
 
@@ -34,5 +34,12 @@ public class UserController {
     public Response<String> delete(@PathVariable int id) {
         userService.delete(id);
         return Response.ok();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public Response<User> get(@PathVariable int id) {
+        User user = userService.detail(id);
+        return Response.ok(user);
     }
 }
