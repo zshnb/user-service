@@ -6,6 +6,8 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.zshnb.userservice.exception.InvalidArgumentException;
 import com.zshnb.userservice.exception.PermissionDenyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,10 +20,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 public class GlobalErrorController extends ResponseEntityExceptionHandler {
+	private final Logger logger = LoggerFactory.getLogger(GlobalErrorController.class);
 
 	@ExceptionHandler(InvalidArgumentException.class)
 	public ResponseEntity<Object> handleInvalidArgumentException(InvalidArgumentException e,
 																 WebRequest webRequest) {
+		logger.error("catch invalid argument exception", e);
 		return handleExceptionInternal(e, Response.error(e.getMessage()),
 			HttpHeaders.EMPTY, BAD_REQUEST, webRequest);
 	}
@@ -29,15 +33,7 @@ public class GlobalErrorController extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(PermissionDenyException.class)
 	public ResponseEntity<Object> handlePermissionDenyException(PermissionDenyException e,
 	                                                            WebRequest webRequest) {
+		logger.error("catch permission deny exception", e);
 		return handleExceptionInternal(e, null, HttpHeaders.EMPTY, FORBIDDEN, webRequest);
-	}
-
-	@Override
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-	                                                              HttpHeaders headers, HttpStatus status,
-	                                                              WebRequest webRequest) {
-	    String error = e.getBindingResult().getFieldError().getDefaultMessage();
-		return handleExceptionInternal(e, Response.error(error),
-			HttpHeaders.EMPTY, BAD_REQUEST, webRequest);
 	}
 }
