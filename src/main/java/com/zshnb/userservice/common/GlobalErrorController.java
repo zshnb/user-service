@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * Handle all specify exception which will be thrown in service
+ * */
 @ControllerAdvice
 public class GlobalErrorController extends ResponseEntityExceptionHandler {
 	private final Logger logger = LoggerFactory.getLogger(GlobalErrorController.class);
