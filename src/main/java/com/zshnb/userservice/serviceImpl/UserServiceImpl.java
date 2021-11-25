@@ -23,6 +23,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    @Transactional
     public User update(int id, User updateRequest) {
         User user = getById(id);
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
@@ -39,6 +40,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
+    @Transactional
     public void delete(int id) {
         User user = getById(id);
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
