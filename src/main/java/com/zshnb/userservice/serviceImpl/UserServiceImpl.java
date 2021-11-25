@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.service.IUserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +16,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     @Override
-    public User update(User user) {
+    public User update(int id, User updateRequest) {
+        User user = getById(id);
+        BeanUtils.copyProperties(updateRequest, user, "id", "createAt");
         updateById(user);
         return getById(user.getId());
     }

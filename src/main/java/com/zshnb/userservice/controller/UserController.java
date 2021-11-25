@@ -25,7 +25,7 @@ public class UserController {
     @PutMapping("/{id}")
     @ResponseBody
     public Response<User> update(@PathVariable int id, @RequestBody User old) {
-        User user = userService.update(old);
+        User user = userService.update(id, old);
         return Response.ok(user);
     }
 
