@@ -21,8 +21,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private final RedisTemplate<String, Integer> redisTemplate;
     private final GeoUtil geoUtil;
 
-    public UserServiceImpl(
-        RedisTemplate<String, Integer> redisTemplate, GeoUtil geoUtil) {
+    public UserServiceImpl(RedisTemplate<String, Integer> redisTemplate, GeoUtil geoUtil) {
         this.redisTemplate = redisTemplate;
         this.geoUtil = geoUtil;
     }
@@ -30,17 +29,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     @Transactional
     public User add(AddUserRequest request) {
-        AssertionUtil.assertCondition(!StringUtils.isEmpty(user.getName()), "name must not be empty");
-        String[] strings = user.getAddress().split(",");
+        AssertionUtil.assertCondition(!StringUtils.isEmpty(request.getName()), "name must not be empty");
+        String[] strings = request.getAddress().split(",");
         AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
-           "invalid coordinate");
+            "invalid coordinate");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.exists(String.format("select id from user where name = '%s'", user.getName()));
-        AssertionUtil.assertCondition(getOne(queryWrapper) == null, String.format("user with %s already exist", user.getName()));
+        queryWrapper.exists(String.format("select id from user where name = '%s'", request.getName()));
+        AssertionUtil.assertCondition(getOne(queryWrapper) == null, String.format("user with %s already exist", request.getName()));
+        User user = new User();
+        BeanUtils.copyProperties(request, user);
         save(user);
         GeoOperations<String, Integer> geoOperations = redisTemplate.opsForGeo();
         geoOperations.add("user-coordinate", new Point(Double.parseDouble(strings[0]), Double.parseDouble(strings[1])), user.getId());
-        return getById(user.getId());
+        return user;
     }
 
     @Override
