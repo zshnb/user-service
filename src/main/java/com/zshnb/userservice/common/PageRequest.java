@@ -1,5 +1,8 @@
 package com.zshnb.userservice.common;
 
+/**
+ * Basic class for pageable request
+ * */
 public class PageRequest {
     int pageNumber = 1;
 
