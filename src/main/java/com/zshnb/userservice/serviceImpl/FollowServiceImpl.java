@@ -56,9 +56,13 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", request.getUserId()));
         User followUser = userMapper.selectById(request.getFollowUserId());
         AssertionUtil.assertCondition(followUser != null, String.format("follow user with %d doesn't exist", request.getFollowUserId()));
-        followMapper.delete(new QueryWrapper<Follow>()
+        QueryWrapper<Follow> queryWrapper = new QueryWrapper<Follow>()
             .eq("user_id", request.getUserId())
-            .eq("follow_user_id", request.getFollowUserId()));
+            .eq("follow_user_id", request.getFollowUserId());
+        Follow follow = getOne(queryWrapper);
+        AssertionUtil.assertCondition(follow != null,
+            String.format("relationship between %d and %d doesn't exist", request.getUserId(), request.getFollowUserId()));
+        followMapper.deleteById(follow.getId());
         return Response.ok();
     }
 }
