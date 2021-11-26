@@ -3,6 +3,7 @@ package com.zshnb.userservice.controller;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.request.AddUserRequest;
+import com.zshnb.userservice.request.UpdateUserRequest;
 import com.zshnb.userservice.serviceImpl.UserServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class UserController {
 
     @PutMapping("/{id}")
     @ResponseBody
-    public Response<User> update(@PathVariable int id, @RequestBody User old) {
-        User user = userService.update(id, old);
+    public Response<User> update(@PathVariable int id, @RequestBody UpdateUserRequest request) {
+        User user = userService.update(id, request);
         return Response.ok(user);
     }
 

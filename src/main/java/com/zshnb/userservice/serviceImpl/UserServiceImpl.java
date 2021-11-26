@@ -36,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             "invalid coordinate");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.exists(String.format("select id from user where name = '%s'", request.getName()));
-        AssertionUtil.assertCondition(getOne(queryWrapper) == null, String.format("user with %s already exist", request.getName()));
+        AssertionUtil.assertCondition(getOne(queryWrapper) == null, String.format("user with name:[%s] already exist", request.getName()));
         User user = new User();
         BeanUtils.copyProperties(request, user);
         save(user);
@@ -48,11 +48,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     @Transactional
     public User update(int id, UpdateUserRequest request) {
-        AssertionUtil.assertCondition(!StringUtils.isEmpty(request.getName()), "name must not be empty");
-        String[] strings = request.getAddress().split(",");
-        AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
-            "invalid coordinate");
+        if (!StringUtils.isEmpty(request.getName())) {
+            User maxExist = getOne(new QueryWrapper<User>().eq("name", request.getName()));
+            AssertionUtil.assertCondition(maxExist == null, String.format("user with name:[%s] already exist", request.getName()));
+        }
+        if (!StringUtils.isEmpty(request.getAddress())) {
+            String[] strings = request.getAddress().split(",");
+            AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
+                "invalid coordinate");
+        }
         User user = getById(id);
+        if (StringUtils.isEmpty(request.getName())) {
+            request.setName(user.getName());
+        }
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
         BeanUtils.copyProperties(request, user);
         updateById(user);
