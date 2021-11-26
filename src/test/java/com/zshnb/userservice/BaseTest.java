@@ -17,6 +17,9 @@ public class BaseTest {
     private SqlSessionFactory sqlSessionFactory;
     private String DatabaseName = "user_test";
 
+    /**
+     * clean database environment before every unit test
+     * */
     @BeforeEach
     public void truncate() throws SQLException {
         try (final SqlSession sqlSession = sqlSessionFactory.openSession()) {
