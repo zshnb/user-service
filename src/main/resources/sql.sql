@@ -14,3 +14,10 @@ create table `follow`
     `user_id`        int(11),
     `follow_user_id` int(11)
 );
+
+create table `fan`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `user_id`     int(11),
+    `fan_user_id` int(11)
+);
