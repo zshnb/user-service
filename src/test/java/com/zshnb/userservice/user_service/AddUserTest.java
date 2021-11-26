@@ -67,4 +67,15 @@ public class AddUserTest extends BaseTest {
             new HttpEntity<>(request), new ParameterizedTypeReference<Response<User>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    public void failedWhenInvalidName() {
+        AddUserRequest request = new AddUserRequest();
+        request.setDob(LocalDateTime.now());
+        request.setDescription("description");
+
+        ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(request), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }
