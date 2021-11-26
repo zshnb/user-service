@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.AddUserRequest;
+import com.zshnb.userservice.request.UpdateUserRequest;
 import com.zshnb.userservice.service.IUserService;
 import com.zshnb.userservice.util.AssertionUtil;
 import com.zshnb.userservice.util.GeoUtil;
@@ -46,12 +47,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     @Transactional
-    public User update(int id, User updateRequest) {
+    public User update(int id, UpdateUserRequest request) {
+        AssertionUtil.assertCondition(!StringUtils.isEmpty(request.getName()), "name must not be empty");
+        String[] strings = request.getAddress().split(",");
+        AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
+            "invalid coordinate");
         User user = getById(id);
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
-        BeanUtils.copyProperties(updateRequest, user, "id", "createAt");
+        BeanUtils.copyProperties(request, user);
         updateById(user);
-        return getById(user.getId());
+        return user;
     }
 
     @Override
