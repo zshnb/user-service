@@ -2,6 +2,7 @@ package com.zshnb.userservice.controller;
 
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
+import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.serviceImpl.UserServiceImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class UserController {
 
     @PostMapping
     @ResponseBody
-    public Response<User> add(@RequestBody User request) {
+    public Response<User> add(@RequestBody AddUserRequest request) {
         User user = userService.add(request);
         return Response.ok(user);
     }

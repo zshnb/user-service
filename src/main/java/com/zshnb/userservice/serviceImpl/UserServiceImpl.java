@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
+import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.service.IUserService;
 import com.zshnb.userservice.util.AssertionUtil;
 import com.zshnb.userservice.util.GeoUtil;
@@ -13,6 +14,7 @@ import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
@@ -27,7 +29,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     @Transactional
-    public User add(User user) {
+    public User add(AddUserRequest request) {
+        AssertionUtil.assertCondition(!StringUtils.isEmpty(user.getName()), "name must not be empty");
         String[] strings = user.getAddress().split(",");
         AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
            "invalid coordinate");

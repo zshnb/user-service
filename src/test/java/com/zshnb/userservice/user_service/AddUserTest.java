@@ -25,7 +25,7 @@ public class AddUserTest extends BaseTest {
         User user = new User();
         user.setName("first user");
         user.setDob(LocalDateTime.now());
-        user.setAddress("address");
+        user.setAddress("100.00,50.0");
         user.setDescription("description");
         ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
             new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
@@ -45,6 +45,27 @@ public class AddUserTest extends BaseTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
 
+        responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    public void failedWhenInvalidAddress() {
+        User user = new User();
+        user.setName("first user");
+        user.setDob(LocalDateTime.now());
+        user.setDescription("description");
+        ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
+
+        responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
+            new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        user.setAddress("100.0,100.0");
         responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
             new HttpEntity<>(user), new ParameterizedTypeReference<Response<User>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
