@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/follow")
+@RequestMapping("/api")
 public class FollowController {
     private final FollowServiceImpl followService;
 
@@ -25,7 +25,7 @@ public class FollowController {
         this.followService = followService;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/follow/{userId}/follow-users")
     public ListResponse<User> listFollowUser(@RequestParam(defaultValue = "1") int pageNumber,
                                              @RequestParam(defaultValue = "20") int pageSize,
                                              @PathVariable int userId) {
@@ -36,12 +36,12 @@ public class FollowController {
         return followService.listFollowUser(request);
     }
 
-    @PostMapping
+    @PostMapping("/follow")
     public Response<String> followUser(@RequestBody FollowUserRequest request) {
         return followService.followUser(request);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/unfollow")
     public Response<String> unfollowUser(@RequestBody UnfollowUserRequest request) {
         return followService.unfollowUser(request);
     }
