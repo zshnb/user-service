@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zshnb.userservice.common.ListResponse;
 import com.zshnb.userservice.common.Response;
+import com.zshnb.userservice.entity.Fan;
 import com.zshnb.userservice.entity.Follow;
 import com.zshnb.userservice.entity.User;
+import com.zshnb.userservice.mapper.FanMapper;
 import com.zshnb.userservice.mapper.FollowMapper;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.FollowUserRequest;
@@ -17,16 +19,20 @@ import com.zshnb.userservice.service.IFollowService;
 import com.zshnb.userservice.util.AssertionUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> implements IFollowService {
     private final FollowMapper followMapper;
     private final UserMapper userMapper;
+    private final FanMapper fanMapper;
 
     public FollowServiceImpl(FollowMapper followMapper,
-                             UserMapper userMapper) {
+                             UserMapper userMapper,
+                             FanMapper fanMapper) {
         this.followMapper = followMapper;
         this.userMapper = userMapper;
+        this.fanMapper = fanMapper;
     }
 
     @Override
@@ -39,6 +45,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     }
 
     @Override
+    @Transactional
     public Response<String> followUser(FollowUserRequest request) {
         User user = userMapper.selectById(request.getUserId());
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", request.getUserId()));
@@ -47,6 +54,10 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
         Follow follow = new Follow();
         BeanUtils.copyProperties(request, follow);
         save(follow);
+        Fan fan = new Fan();
+        fan.setUserId(followUser.getId());
+        fan.setFanUserId(user.getId());
+        fanMapper.insert(fan);
         return Response.ok();
     }
 
@@ -63,6 +74,8 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
         AssertionUtil.assertCondition(follow != null,
             String.format("relationship between %d and %d doesn't exist", request.getUserId(), request.getFollowUserId()));
         followMapper.deleteById(follow.getId());
+        fanMapper.delete(new QueryWrapper<Fan>().eq("user_id", followUser.getId())
+            .eq("fan_user_id", user.getId()));
         return Response.ok();
     }
 }
