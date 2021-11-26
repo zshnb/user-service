@@ -6,19 +6,37 @@ import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.service.IUserService;
 import com.zshnb.userservice.util.AssertionUtil;
+import com.zshnb.userservice.util.GeoUtil;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.geo.Point;
+import org.springframework.data.redis.core.GeoOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+    private final RedisTemplate<String, Integer> redisTemplate;
+    private final GeoUtil geoUtil;
+
+    public UserServiceImpl(
+        RedisTemplate<String, Integer> redisTemplate, GeoUtil geoUtil) {
+        this.redisTemplate = redisTemplate;
+        this.geoUtil = geoUtil;
+    }
+
     @Override
     @Transactional
     public User add(User user) {
+        String[] strings = user.getAddress().split(",");
+        AssertionUtil.assertCondition(strings.length == 2 && geoUtil.checkCoordinate(strings[0], strings[1]),
+           "invalid coordinate");
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.exists(String.format("select id from user where name = '%s'", user.getName()));
         AssertionUtil.assertCondition(getOne(queryWrapper) == null, String.format("user with %s already exist", user.getName()));
         save(user);
+        GeoOperations<String, Integer> geoOperations = redisTemplate.opsForGeo();
+        geoOperations.add("user-coordinate", new Point(Double.parseDouble(strings[0]), Double.parseDouble(strings[1])), user.getId());
         return getById(user.getId());
     }
 
