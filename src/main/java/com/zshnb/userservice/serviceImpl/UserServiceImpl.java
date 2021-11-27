@@ -64,10 +64,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             userUtil.setAddress(request.getAddress(), id);
         }
         User user = getById(id);
+        AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
         if (StringUtils.isEmpty(request.getName())) {
             request.setName(user.getName());
         }
-        AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
         BeanUtils.copyProperties(request, user);
         updateById(user);
         return user;

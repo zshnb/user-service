@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import com.zshnb.userservice.BaseTest;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
+import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.serviceImpl.UserServiceImpl;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
@@ -29,13 +30,13 @@ public class DeleteUserTest extends BaseTest {
     @Test
     @Transactional
     public void successful() {
-        User addRequest = new User();
-        addRequest.setName("first user");
-        addRequest.setDob(LocalDateTime.now());
-        addRequest.setAddress("address");
-        addRequest.setDescription("description");
+        AddUserRequest request = new AddUserRequest();
+        request.setName("first user");
+        request.setDob(LocalDateTime.now());
+        request.setAddress("100.00,50.0");
+        request.setDescription("description");
         ResponseEntity<Response<User>> responseEntity = testRestTemplate.exchange("/api/user", HttpMethod.POST,
-            new HttpEntity<>(addRequest), new ParameterizedTypeReference<Response<User>>() {});
+            new HttpEntity<>(request), new ParameterizedTypeReference<Response<User>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getData().getName()).isEqualTo("first user");
         User response = responseEntity.getBody().getData();
