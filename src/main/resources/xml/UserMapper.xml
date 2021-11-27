@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zshnb.userservice.mapper.UserMapper">
+  <select id="findNearbyFriends" resultType="com.zshnb.userservice.entity.User">
+    select *
+    from user u1
+    where u1.id in(
+      select f1.follow_user_id
+      from follow f1
+      where f1.user_id = #{userId} and f1.follow_user_id in (
+      <foreach collection="userIds" item="id" separator=",">
+        #{id}
+      </foreach>
+      )
+    )
+    union
+    select *
+    from user u2
+    where u2.id in (
+      select f2.fan_user_id
+      from fan f2
+      where f2.user_id = #{userId} and f2.fan_user_id in (
+      <foreach collection="userIds" item="id" separator=",">
+        #{id}
+      </foreach>
+      )
+    )
+  </select>
 </mapper>

@@ -65,6 +65,21 @@ public class FollowUserTest extends BaseTest {
     }
 
     @Test
+    public void failedWhenFollowSelf() {
+        User user = new User();
+        user.setName("user2");
+        userMapper.insert(user);
+
+        FollowUserRequest followUserRequest = new FollowUserRequest();
+        followUserRequest.setUserId(user.getId());
+        followUserRequest.setFollowUserId(user.getId());
+
+        ResponseEntity<Response<String>> responseEntity = testRestTemplate.exchange("/api/follow", HttpMethod.POST,
+            new HttpEntity<>(followUserRequest), new ParameterizedTypeReference<Response<String>>() {});
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
     public void failedWhenFollowUserNotExist() {
         User user = new User();
         user.setName("user2");

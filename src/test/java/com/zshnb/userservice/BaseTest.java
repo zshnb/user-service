@@ -10,12 +10,29 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BaseTest {
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     private String DatabaseName = "user_test";
+
+    /**
+     * clean redis
+     * */
+    @BeforeEach
+    public void before() {
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.flushDb();
+            return null;
+        });
+    }
 
     /**
      * clean database environment before every unit test
