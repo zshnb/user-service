@@ -5,12 +5,14 @@ import cn.dev33.satoken.oauth2.config.SaOAuth2Config;
 import cn.dev33.satoken.oauth2.logic.SaOAuth2Handle;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
+import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.serviceImpl.UserServiceImpl;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -23,8 +25,13 @@ public class OAuth2Controller {
 	}
 
 	@GetMapping("/oauth2/*")
-	public Object request() {
+	public Object handleRequest() {
 		return SaOAuth2Handle.serverRequest();
+	}
+
+	@GetMapping("/oauth2/redirect-page")
+	public Response<String> redirectPage(@RequestParam String code) {
+		return Response.ok(code);
 	}
 
 	@Autowired
