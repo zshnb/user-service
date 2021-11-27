@@ -19,6 +19,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands.GeoRadiusCommandArgs;
 import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -91,6 +92,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = getById(id);
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
         getBaseMapper().deleteById(id);
+        ZSetOperations<String, Integer> zSetOperations = redisTemplate.opsForZSet();
+        zSetOperations.remove(KEY_USER_COORDINATE, id);
     }
 
     @Override

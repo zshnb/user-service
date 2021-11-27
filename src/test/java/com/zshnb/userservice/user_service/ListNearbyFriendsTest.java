@@ -2,11 +2,12 @@ package com.zshnb.userservice.user_service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.zshnb.userservice.BaseTest;
 import com.zshnb.userservice.common.ListResponse;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
-import com.zshnb.userservice.mapper.FollowMapper;
+import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.request.FollowUserRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class ListNearbyFriendsTest extends BaseTest {
+	@Autowired
+	private UserMapper userMapper;
+
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
@@ -90,5 +94,15 @@ public class ListNearbyFriendsTest extends BaseTest {
 		assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getData().size()).isEqualTo(1);
 		assertThat(response.getData().get(0).getName()).isEqualTo("user5");
+
+		User user = userMapper.selectOne(new QueryWrapper<User>().eq("name", "user5"));
+		testRestTemplate.exchange(String.format("/api/user/%d", user.getId()), HttpMethod.DELETE,
+			null, new ParameterizedTypeReference<Response<User>>() {});
+
+		listResponseResponseEntity = testRestTemplate.exchange("/api/user/user4/nearby-friends?radius=200000",
+			HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
+		response = listResponseResponseEntity.getBody();
+		assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getData().size()).isZero();
 	}
 }
