@@ -20,7 +20,6 @@ public class OAuth2Controller {
 
 	@GetMapping("/oauth2/*")
 	public Object handleRequest() {
-		System.out.println("------- 进入请求: " + SaHolder.getRequest().getUrl());
 		return SaOAuth2Handle.serverRequest();
 	}
 

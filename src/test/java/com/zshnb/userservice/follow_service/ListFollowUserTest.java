@@ -8,6 +8,8 @@ import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.FollowUserRequest;
+import com.zshnb.userservice.request.ListFollowUserRequest;
+import com.zshnb.userservice.serviceImpl.FollowServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -23,6 +25,9 @@ public class ListFollowUserTest extends BaseTest {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private FollowServiceImpl followService;
 
     @Test
     public void listFollowUserSuccessful() {
@@ -41,16 +46,14 @@ public class ListFollowUserTest extends BaseTest {
             new HttpEntity<>(followUserRequest), new ParameterizedTypeReference<Response<String>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity<ListResponse<User>> listResponseResponseEntity =
-            testRestTemplate.exchange(String.format("/api/follow/%d/follow-users", user1.getId()),
-                HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
-        assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponseResponseEntity.getBody().getTotal()).isEqualTo(1L);
-        assertThat(listResponseResponseEntity.getBody().getData().get(0).getId()).isEqualTo(user2.getId());
+        ListFollowUserRequest listFollowUserRequest = new ListFollowUserRequest();
+        listFollowUserRequest.setUserId(user1.getId());
+        ListResponse<User> follows = followService.listFollowUser(listFollowUserRequest);
+        assertThat(follows.getTotal()).isEqualTo(1L);
+        assertThat(follows.getData().get(0).getId()).isEqualTo(user2.getId());
 
-        listResponseResponseEntity = testRestTemplate.exchange(String.format("/api/follow/%d/follow-users", user2.getId()),
-                HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
-        assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponseResponseEntity.getBody().getTotal()).isZero();
+        listFollowUserRequest.setUserId(user2.getId());
+        follows = followService.listFollowUser(listFollowUserRequest);
+        assertThat(follows.getTotal()).isZero();
     }
 }
