@@ -47,6 +47,7 @@ public class FollowServiceImpl extends ServiceImpl<FollowMapper, Follow> impleme
     @Override
     @Transactional
     public Response<String> followUser(FollowUserRequest request) {
+        AssertionUtil.assertCondition(request.getUserId() != request.getFollowUserId(), "can't follow self");
         User user = userMapper.selectById(request.getUserId());
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", request.getUserId()));
         User followUser = userMapper.selectById(request.getFollowUserId());

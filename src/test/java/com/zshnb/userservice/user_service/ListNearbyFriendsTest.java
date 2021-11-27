@@ -21,9 +21,6 @@ import org.springframework.http.ResponseEntity;
 
 public class ListNearbyFriendsTest extends BaseTest {
 	@Autowired
-	private FollowMapper followMapper;
-
-	@Autowired
 	private TestRestTemplate testRestTemplate;
 
 	@BeforeEach
