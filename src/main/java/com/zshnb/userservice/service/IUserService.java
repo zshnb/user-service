@@ -1,6 +1,7 @@
 package com.zshnb.userservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zshnb.userservice.common.ListResponse;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.request.UpdateUserRequest;
@@ -10,4 +11,6 @@ public interface IUserService extends IService<User> {
     User update(int id, UpdateUserRequest request);
     User detail(int id);
     void delete(int id);
+
+	ListResponse<User> listNearbyFriends(String name, double radius, int limit);
 }

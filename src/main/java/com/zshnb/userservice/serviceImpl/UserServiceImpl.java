@@ -2,6 +2,7 @@ package com.zshnb.userservice.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zshnb.userservice.common.ListResponse;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.AddUserRequest;
@@ -9,21 +10,31 @@ import com.zshnb.userservice.request.UpdateUserRequest;
 import com.zshnb.userservice.service.IUserService;
 import com.zshnb.userservice.util.AssertionUtil;
 import com.zshnb.userservice.util.GeoUtil;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.Metrics;
 import org.springframework.data.geo.Point;
+import org.springframework.data.redis.connection.RedisGeoCommands.GeoRadiusCommandArgs;
 import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
     private final RedisTemplate<String, Integer> redisTemplate;
+    private final UserMapper userMapper;
     private final GeoUtil geoUtil;
+    private final String KEY_USER_COORDINATE = "user-coordinate";
 
-    public UserServiceImpl(RedisTemplate<String, Integer> redisTemplate, GeoUtil geoUtil) {
+    public UserServiceImpl(RedisTemplate<String, Integer> redisTemplate,
+                           UserMapper userMapper, GeoUtil geoUtil) {
         this.redisTemplate = redisTemplate;
+        this.userMapper = userMapper;
         this.geoUtil = geoUtil;
     }
 
@@ -41,7 +52,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         BeanUtils.copyProperties(request, user);
         save(user);
         GeoOperations<String, Integer> geoOperations = redisTemplate.opsForGeo();
-        geoOperations.add("user-coordinate", new Point(Double.parseDouble(strings[0]), Double.parseDouble(strings[1])), user.getId());
+        geoOperations.add(KEY_USER_COORDINATE, new Point(Double.parseDouble(strings[0]), Double.parseDouble(strings[1])), user.getId());
         return user;
     }
 
@@ -80,5 +91,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         User user = getById(id);
         AssertionUtil.assertCondition(user != null, String.format("user with %d doesn't exist", id));
         getBaseMapper().deleteById(id);
+    }
+
+    @Override
+    public ListResponse<User> listNearbyFriends(String name, double radius, int limit) {
+        User user = getOne(new QueryWrapper<User>().eq("name", name));
+        AssertionUtil.assertCondition(user != null, String.format("user with name:[%s] doesn't exist", name));
+        GeoOperations<String, Integer> geoOperations = redisTemplate.opsForGeo();
+        GeoRadiusCommandArgs args = GeoRadiusCommandArgs.newGeoRadiusArgs()
+            .limit(limit)
+            .sortAscending();
+        List<Integer> nearbyUserIds = geoOperations.radius(KEY_USER_COORDINATE, user.getId(), new Distance(radius), args)
+            .getContent()
+            .stream()
+            .filter(it -> !it.getContent().getName().equals(user.getId()))
+            .map(it -> it.getContent().getName())
+            .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(nearbyUserIds)) {
+            List<User> nearbyUsers = userMapper.findNearbyFriends(nearbyUserIds, user.getId());
+            return new ListResponse<>(nearbyUsers, nearbyUsers.size());
+        }
+        return new ListResponse<>();
     }
 }

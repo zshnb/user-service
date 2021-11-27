@@ -1,5 +1,6 @@
 package com.zshnb.userservice.common;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ListResponse<T> {
@@ -9,6 +10,11 @@ public class ListResponse<T> {
     public ListResponse(List<T> data, long total) {
         this.data = data;
         this.total = total;
+    }
+
+    public ListResponse() {
+        this.data = Collections.emptyList();
+        this.total = 0L;
     }
 
     public List<T> getData() {
