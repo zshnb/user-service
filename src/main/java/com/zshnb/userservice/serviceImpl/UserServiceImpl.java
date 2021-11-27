@@ -11,7 +11,6 @@ import com.zshnb.userservice.request.AddUserRequest;
 import com.zshnb.userservice.request.UpdateUserRequest;
 import com.zshnb.userservice.service.IUserService;
 import com.zshnb.userservice.util.AssertionUtil;
-import com.zshnb.userservice.util.GeoUtil;
 import com.zshnb.userservice.util.UserUtil;
 import java.util.List;
 import java.util.stream.Collectors;
