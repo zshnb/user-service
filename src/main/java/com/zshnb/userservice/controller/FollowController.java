@@ -1,6 +1,10 @@
 package com.zshnb.userservice.controller;
 
+import static com.zshnb.userservice.common.UserConstant.SERVER_URL;
+
 import com.ejlchina.okhttps.OkHttps;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.zshnb.userservice.common.ListResponse;
 import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
@@ -21,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class FollowController {
-    private final String serverUrl = "http://localhost:8080";
     private final FollowServiceImpl followService;
 
     public FollowController(FollowServiceImpl followService) {
@@ -31,23 +34,32 @@ public class FollowController {
     @GetMapping("/follow/{userId}/follow-users")
     public ListResponse<User> listFollowUser(@RequestParam(defaultValue = "1") int pageNumber,
                                              @RequestParam(defaultValue = "20") int pageSize,
-                                             @RequestParam String code,
-                                             @RequestParam String clientSecret,
+                                             @RequestParam(defaultValue = "") String code,
+                                             @RequestParam(name = "client_id", defaultValue = "") String clientId,
+                                             @RequestParam(name = "secret", defaultValue = "") String clientSecret,
                                              @PathVariable int userId) {
-        String str = OkHttps.sync(serverUrl + "/oauth2/token")
-            .addBodyPara("grant_type", "authorization_code")
-            .addBodyPara("code", code)
-            .addBodyPara("client_id", userId)
-            .addBodyPara("client_secret", clientSecret)
-            .post()
+        String str = OkHttps.sync(SERVER_URL + "/oauth2/token")
+            .addUrlPara("grant_type", "authorization_code")
+            .addUrlPara("code", code)
+            .addUrlPara("client_id", clientId)
+            .addUrlPara("client_secret", clientSecret)
+            .get()
             .getBody()
             .toString();
+        JsonObject jsonObject = new Gson().fromJson(str, JsonObject.class);
+        if(jsonObject == null || jsonObject.get("code").getAsInt() != 200) {
+            throw new PermissionDenyException();
+        }
 
-        SoMap so = SoMap.getSoMap().setJsonString(str);
-        System.out.println("返回结果: " + so);
-
-        // code不等于200  代表请求失败
-        if(so.getInt("code") != 200) {
+        JsonObject data = jsonObject.get("data").getAsJsonObject();
+        String accessToken = data.get("access_token").getAsString();
+        str = OkHttps.sync(SERVER_URL + "/api/oauth2/user-info")
+            .addUrlPara("access_token", accessToken)
+            .get()
+            .getBody()
+            .toString();
+        jsonObject = new Gson().fromJson(str, JsonObject.class);
+        if(jsonObject.get("code").getAsInt() != 200) {
             throw new PermissionDenyException();
         }
 

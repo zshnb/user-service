@@ -33,7 +33,8 @@
 <body>
 <div class="login-box">
   <h2>OAuth Login Page</h2> <br>
-  user id：<input name="id"/> <br>
+  app name：<input name="name"/> <br>
+  app password：<input name="pwd" type="password"/> <br>
   <button onclick="doLogin()">login</button>
 </div>
 </body>
@@ -47,9 +48,8 @@
     $.ajax({
       url: '/oauth2/doLogin',
       data: {
-        id: $('[name=id]').val(),
-        name: 'name',
-        pwd: 'pwd'
+        name: $('[name=name]').val(),
+        pwd: $('[name=pwd]').val()
       },
       dataType: 'json',
       success: function (res) {
