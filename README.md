@@ -16,8 +16,9 @@
    docker run --name redis -p 6379:6379 -d redis
    ```
 
-3. create database `user` and execute `src/main/resources/sql.sql`
-4. run `src/main/java/com/zshnb/userservice/SpringMainApplication.java`
+3. create database `user` and execute `src/main/resources/sql.sql`.
+4. if you need deploy to cloud server, set environment `oauth2.server-url=http://ip:8081`
+5. run `src/main/java/com/zshnb/userservice/SpringMainApplication.java`.
 
 ## API Document
 
