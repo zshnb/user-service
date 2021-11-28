@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OAuth2Util {
+	/**
+	 * check if accessToken exist or has permission
+	 * */
 	public void checkPermission(String accessToken) {
 		String str = OkHttps.sync(SERVER_URL + "/api/oauth2/user-info")
 			.addUrlPara("access_token", accessToken)

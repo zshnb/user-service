@@ -17,6 +17,9 @@ public class UserUtil {
 		this.redisTemplate = redisTemplate;
 	}
 
+	/**
+	 * check address is valid and add into redis
+	 * */
 	public void setAddress(String address, int id) {
 		String[] strings = address.split(",");
 		AssertionUtil.assertCondition(strings.length == 2, "invalid coordinate");
