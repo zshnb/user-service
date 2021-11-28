@@ -17,7 +17,7 @@ public class OAuth2Util {
 			.getBody()
 			.toString();
 		JsonObject jsonObject = new Gson().fromJson(str, JsonObject.class);
-		if(jsonObject.get("code").getAsInt() != 200) {
+		if(jsonObject == null || jsonObject.get("code") == null || jsonObject.get("code").getAsInt() != 200) {
 			throw new PermissionDenyException();
 		}
 	}
