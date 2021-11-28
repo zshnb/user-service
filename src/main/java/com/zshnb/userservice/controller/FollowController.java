@@ -31,11 +31,9 @@ public class FollowController {
     @GetMapping("/follow/{userId}/follow-users")
     public ListResponse<User> listFollowUser(@RequestParam(defaultValue = "1") int pageNumber,
                                              @RequestParam(defaultValue = "20") int pageSize,
-                                             @RequestParam(defaultValue = "") String code,
-                                             @RequestParam(name = "client_id", defaultValue = "") String clientId,
-                                             @RequestParam(name = "secret", defaultValue = "") String clientSecret,
+                                             @RequestParam(name = "access_token", defaultValue = "") String accessToken,
                                              @PathVariable int userId) {
-        oAuth2Util.checkPermission(code, clientId, clientSecret);
+        oAuth2Util.checkPermission(accessToken);
 
         ListFollowUserRequest request = new ListFollowUserRequest();
         request.setUserId(userId);

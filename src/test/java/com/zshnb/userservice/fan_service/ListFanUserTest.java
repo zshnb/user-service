@@ -49,7 +49,7 @@ public class ListFanUserTest extends BaseTest {
             new HttpEntity<>(followUserRequest), new ParameterizedTypeReference<Response<String>>() {});
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        Mockito.doNothing().when(oAuth2Util).checkPermission(anyString(), anyString(), anyString());
+        Mockito.doNothing().when(oAuth2Util).checkPermission(anyString());
         ResponseEntity<ListResponse<User>> listResponseResponseEntity =
             testRestTemplate.exchange(String.format("/api/fan/%d/fan-users", user2.getId()),
                 HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
@@ -63,7 +63,7 @@ public class ListFanUserTest extends BaseTest {
         User user2 = new User();
         user2.setName("user2");
         userMapper.insert(user2);
-        Mockito.doThrow(PermissionDenyException.class).when(oAuth2Util).checkPermission(anyString(), anyString(), anyString());
+        Mockito.doThrow(PermissionDenyException.class).when(oAuth2Util).checkPermission(anyString());
         ResponseEntity<ListResponse<User>> listResponseResponseEntity =
             testRestTemplate.exchange(String.format("/api/fan/%d/fan-users", user2.getId()),
                 HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
