@@ -23,10 +23,10 @@ public class FanController {
     }
 
     @GetMapping("/fan/{userId}/fan-users")
-    public ListResponse<User> listFollowUser(@RequestParam(defaultValue = "1") int pageNumber,
-                                             @RequestParam(defaultValue = "20") int pageSize,
-                                             @RequestParam(name = "accessToken", defaultValue = "") String accessToken,
-                                             @PathVariable int userId) {
+    public ListResponse<User> listFanUser(@RequestParam(name = "page_number", defaultValue = "1") int pageNumber,
+                                          @RequestParam(name = "page_size", defaultValue = "20") int pageSize,
+                                          @RequestParam(name = "access_token", defaultValue = "") String accessToken,
+                                          @PathVariable int userId) {
         oAuth2Util.checkPermission(accessToken);
 
         ListFanUserRequest request = new ListFanUserRequest();

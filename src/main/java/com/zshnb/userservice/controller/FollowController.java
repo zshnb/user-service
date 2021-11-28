@@ -29,8 +29,8 @@ public class FollowController {
     }
 
     @GetMapping("/follow/{userId}/follow-users")
-    public ListResponse<User> listFollowUser(@RequestParam(defaultValue = "1") int pageNumber,
-                                             @RequestParam(defaultValue = "20") int pageSize,
+    public ListResponse<User> listFollowUser(@RequestParam(name = "page_number", defaultValue = "1") int pageNumber,
+                                             @RequestParam(name = "page_size", defaultValue = "20") int pageSize,
                                              @RequestParam(name = "access_token", defaultValue = "") String accessToken,
                                              @PathVariable int userId) {
         oAuth2Util.checkPermission(accessToken);
