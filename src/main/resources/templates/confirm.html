@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OAuth confirm page</title>
+  <style type="text/css">
+    body {
+      background-color: #F5F5D5;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .login-box {
+      width: 400px;
+      margin: 20vh auto;
+      padding: 70px;
+      border: 1px #000 solid;
+    }
+
+    .login-box button {
+      padding: 5px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="login-box">
+  <h2>OAuth Confirm Page</h2> <br>
+  <div>
+    <br>
+    <div>------------- Agree? -------------</div>
+    <br>
+    <div>
+      <button onclick="yes()">yes</button>
+      <button onclick="no()">no</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+<script src="https://unpkg.zhimg.com/jquery@3.4.1/dist/jquery.min.js"></script>
+<script src="https://www.layuicdn.com/layer-v3.1.1/layer.js"></script>
+<script>window.jQuery || alert('can\'t find CDN resource, please replace by local resource')</script>
+<script type="text/javascript">
+  function yes() {
+    $.ajax({
+      url: '/oauth2/doConfirm',
+      data: {
+        client_id: getParam('client_id'),
+        scope: getParam('scope')
+      },
+      dataType: 'json',
+      success: function (res) {
+        if (res.code === 200) {
+          setTimeout(function () {
+            window.location.reload(true);
+          }, 800);
+        } else {
+          layer.alert('reject authorization');
+        }
+      },
+      error: function (e) {
+        console.log('error');
+      }
+    });
+  }
+
+  // reject authorization
+  function no() {
+    window.location.href = joinParam(getParam('redirect_uri'), "handle=refuse&msg=user reject authorization");
+  }
+
+  // get value from url's query parameter
+  function getParam(name, defaultValue) {
+    let query = window.location.search.substring(1);
+    let vars = query.split("&");
+    for (let i = 0; i < vars.length; i++) {
+      let pair = vars[i].split("=");
+      if (pair[0] === name) {
+        return pair[1];
+      }
+    }
+    return (defaultValue === undefined ? null : defaultValue);
+  }
+
+  // join parameter and value into url and return
+  function joinParam(url, parameterStr) {
+    if (parameterStr == null || parameterStr.length === 0) {
+      return url;
+    }
+    let index = url.indexOf('?');
+    // ? doesn't exist
+    if (index === -1) {
+      return url + '?' + parameterStr;
+    }
+    // ? is the last char
+    if (index === url.length - 1) {
+      return url + parameterStr;
+    }
+    // ? is in url
+    if (index > -1 && index < url.length - 1) {
+      // if last char isn't & and first isn't & then append &
+      if (url.lastIndexOf('&') !== url.length - 1 && parameterStr.indexOf('&') !== 0) {
+        return url + '&' + parameterStr;
+      } else {
+        return url + parameterStr;
+      }
+    }
+  }
+</script>

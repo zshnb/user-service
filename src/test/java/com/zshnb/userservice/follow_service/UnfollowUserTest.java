@@ -8,7 +8,9 @@ import com.zshnb.userservice.common.Response;
 import com.zshnb.userservice.entity.User;
 import com.zshnb.userservice.mapper.UserMapper;
 import com.zshnb.userservice.request.FollowUserRequest;
+import com.zshnb.userservice.request.ListFollowUserRequest;
 import com.zshnb.userservice.request.UnfollowUserRequest;
+import com.zshnb.userservice.serviceImpl.FollowServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,6 +27,9 @@ public class UnfollowUserTest extends BaseTest {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private FollowServiceImpl followService;
+
     @Test
     public void unfollowSuccessful() {
         User user1 = new User();
@@ -40,23 +45,20 @@ public class UnfollowUserTest extends BaseTest {
 
         testRestTemplate.exchange("/api/follow", HttpMethod.POST,
             new HttpEntity<>(followUserRequest), new ParameterizedTypeReference<Response<String>>() {});
-        ResponseEntity<ListResponse<User>> listResponseResponseEntity =
-            testRestTemplate.exchange(String.format("/api/follow/%d/follow-users", user1.getId()),
-                HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
-        assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponseResponseEntity.getBody().getTotal()).isEqualTo(1L);
-        assertThat(listResponseResponseEntity.getBody().getData().get(0).getId()).isEqualTo(user2.getId());
+        ListFollowUserRequest listFollowUserRequest = new ListFollowUserRequest();
+        listFollowUserRequest.setUserId(user1.getId());
+        ListResponse<User> follows = followService.listFollowUser(listFollowUserRequest);
+        assertThat(follows.getTotal()).isEqualTo(1L);
+        assertThat(follows.getData().get(0).getId()).isEqualTo(user2.getId());
 
         UnfollowUserRequest unfollowUserRequest = new UnfollowUserRequest();
         unfollowUserRequest.setUserId(user1.getId());
         unfollowUserRequest.setFollowUserId(user2.getId());
         testRestTemplate.exchange("/api/unfollow", HttpMethod.DELETE,
             new HttpEntity<>(unfollowUserRequest), new ParameterizedTypeReference<Response<String>>() {});
-        listResponseResponseEntity =
-            testRestTemplate.exchange(String.format("/api/follow/%d/follow-users", user1.getId()),
-                HttpMethod.GET, null, new ParameterizedTypeReference<ListResponse<User>>() {});
-        assertThat(listResponseResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(listResponseResponseEntity.getBody().getTotal()).isZero();
+        listFollowUserRequest.setUserId(user1.getId());
+        follows = followService.listFollowUser(listFollowUserRequest);
+        assertThat(follows.getTotal()).isZero();
     }
 
     @Test

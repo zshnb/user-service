@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OAuth login page</title>
+  <style type="text/css">
+    body {
+      background-color: #F5F5D5;
+    }
+
+    * {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .login-box {
+      width: 400px;
+      margin: 20vh auto;
+      text-align: center;
+    }
+
+    .login-box input {
+      line-height: 25px;
+      margin-bottom: 10px;
+    }
+
+    .login-box button {
+      padding: 5px 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="login-box">
+  <h2>OAuth Login Page</h2> <br>
+  app name：<input name="name"/> <br>
+  app password：<input name="pwd" type="password"/> <br>
+  <button onclick="doLogin()">login</button>
+</div>
+</body>
+</html>
+<script src="https://unpkg.zhimg.com/jquery@3.4.1/dist/jquery.min.js"></script>
+<script src="https://www.layuicdn.com/layer-v3.1.1/layer.js"></script>
+<script>window.jQuery || alert('can\'t find CDN resource, please replace by local resource')</script>
+<script type="text/javascript">
+  // handle login
+  function doLogin() {
+    $.ajax({
+      url: '/oauth2/doLogin',
+      data: {
+        name: $('[name=name]').val(),
+        pwd: $('[name=pwd]').val()
+      },
+      dataType: 'json',
+      success: function (res) {
+        if (res.code !== 200) {
+          layer.alert(res.msg);
+        } else {
+          setTimeout(function() {
+            window.location.reload(true);
+          }, 800);
+        }
+      },
+      error: function (e) {
+        console.log('error');
+      }
+    });
+  }
+</script>
